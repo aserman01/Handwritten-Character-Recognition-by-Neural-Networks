@@ -60,7 +60,7 @@ for i in range(test_n):
     test_temp =[]
     for pixel in range(784):
         test_temp.append(ord(test_x.read(1))/255.) 
-    test.append(train_temp)
+    test.append(test_temp)
 
 test_x.close()
 test_y.close()
@@ -221,18 +221,17 @@ def gradient_descent(x, y, epochs, l_rate, N):
             print("Accuracy: ", get_accuracy(get_predictions(o2), y))
     return W1, b1, W2, b2
 
-W1, b1, W2, b2 = gradient_descent(train, train_l, 500, 0.01, 300)
-print("W1: ",W1,"b1: ", b1,"W2: ", W2,"b2: ", b2)
+W1, b1, W2, b2 = gradient_descent(train, train_l, 100, 0.01, 300)
 
 def make_predictions(X, W1, b1, W2, b2):
-    _, _, _, A2 = forward_propagation(W1, b1, W2, b2, X)
+    _, _, _, A2 = forward_propagation(W1, b1, W2, b2, X, "relu")
     predictions = get_predictions(A2)
     return predictions
 
 def test_prediction(index, W1, b1, W2, b2):
     current_image = train[:, index, None]
     prediction = make_predictions(train[:, index, None], W1, b1, W2, b2)
-    label = train_l[index]
+    label = train_l[:, index, None]
     print("Prediction: ", prediction)
     print("Label: ", label)
     
@@ -247,7 +246,7 @@ test_prediction(2, W1, b1, W2, b2)
 test_prediction(3, W1, b1, W2, b2)
 
 dev_predictions = make_predictions(test, W1, b1, W2, b2)
-get_accuracy(dev_predictions, test_l)
+print(get_accuracy(dev_predictions, test_l))
 
 
 
