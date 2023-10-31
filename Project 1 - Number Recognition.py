@@ -184,39 +184,69 @@ def forward_propagation(W1, b1, W2, b2, X, activation):
     
     return v1, o1, v2, o2
 
-# Main function to find the 
-def back_propagation(v1, o1, v2, o2, W2, x, y, activation):
+# Main function to find the gradients using backpropagation
+def back_propagation(v1, o1, v2, o2, W1, W2, x, y, lambda_v, activation):
     m = y.size
     
+    """
     if activation == "relu":
-        
-        dv2 = o2 - one_zero(y)
-        # Gradient for Output Layer
-        dW2 = (1/m) * dv2.dot(o1.T)
-        db2 = (1/m) * np.sum(dv2, axis=1).reshape(-1,1)
-    
-        dv1 = W2.T.dot(dv2) * d_RELU(v1)
-        # Gradient for Hidden Layer
-        dW1 = (1/m) * dv1.dot(x.T)
-        db1 = (1/m) * np.sum(dv1, axis=1).reshape(-1,1)
-        
         E = np.sum((o2 - one_zero(y)) ** 2)
         Eave = np.sum(E) / m
-        
-    elif activation == "tanh":
-        
-        dv2 = o2 - one_min_one(y)
+
+        # error for output layer
+        e2 = o2 - one_zero(y)
         # Gradient for Output Layer
-        dW2 = (1/m) * dv2.dot(o1.T)
-        db2 = (1/m) * np.sum(dv2, axis=1).reshape(-1,1)
-    
-        dv1 = W2.T.dot(dv2) * d_tanh(v1)
-        # Gradient for Hidden Layer
-        dW1 = (1/m) * dv1.dot(x.T)
-        db1 = (1/m) * np.sum(dv1, axis=1).reshape(-1,1)
+        dW2 = (1/m) * e2.dot(o1.T)
+        db2 = (1/m) * np.sum(e2, axis=1).reshape(-1,1)
         
-        E = np.sum((o2 - one_min_one(y)) ** 2)
-        Eave = np.sum(E) / m
+        # error for hidden layer
+        e1 = W2.T.dot(e2) * d_RELU(v1)
+        # Gradient for Hidden Layer
+        dW1 = (1/m) * e1.dot(x.T)
+        db1 = (1/m) * np.sum(e1, axis=1).reshape(-1,1)
+    """  
+     
+    if activation == "relu":
+        E = np.sum((o2 - one_zero(y)) ** 2) + (lambda_v / 2) * (np.sum(W1 ** 2) + np.sum(W2 ** 2))
+        Eave = np.sum(E) / m 
+        
+        # Regularized term for the gradients
+        reg_term_W2 = lambda_v * W2
+        reg_term_W1 = lambda_v * W1
+        
+        # error for output layer
+        e2 = o2 - one_zero(y)
+        # Gradient for Output Layer with L2 regularization term
+        dW2 = (1/m) * (e2.dot(o1.T)) + reg_term_W2
+        db2 = (1/m) * np.sum(e2, axis=1).reshape(-1,1)
+        
+        # error for hidden layer
+        e1 = (W2.T.dot(e2)) * d_RELU(v1)
+        # Gradient for Hidden Layer with L2 regularization term
+        dW1 = (1/m) * (e1.dot(x.T)) + reg_term_W1
+        db1 = (1/m) * np.sum(e1, axis=1).reshape(-1,1)
+    
+    elif activation == "tanh":
+        E = np.sum((o2 - one_min_one(y)) ** 2) + (lambda_v / 2) * (np.sum(W1 ** 2) + np.sum(W2 ** 2))
+        Eave = np.sum(E) / m 
+        
+        # Regularized term for the gradients
+        reg_term_W2 = lambda_v * W2
+        reg_term_W1 = lambda_v * W1
+        
+        # error for output layer
+        e2 = o2 - one_min_one(y)
+        # Gradient for Output Layer
+        dW2 = (1/m) * e2.dot(o1.T)
+        db2 = (1/m) * np.sum(e2, axis=1).reshape(-1,1)
+        
+        # error for hidden layer
+        e1 = W2.T.dot(e2) * d_tanh(v1)
+        # Gradient for Hidden Layer
+        dW1 = (1/m) * e1.dot(x.T)
+        db1 = (1/m) * np.sum(e1, axis=1).reshape(-1,1)
+        
+        
         
     else:
         raise ValueError("Use activation = 'relu' to use relu for hidden layer and sigmoid for output layer. \n Use activation = 'tanh' to use tanh for all layers.")
@@ -233,7 +263,7 @@ def update_weights(W1, b1, W2, b2, dW1, db1, dW2, db2, l_rate):
     
     return W1, b1, W2, b2
 
-# Functions for getting results
+# Functions for getting results after training is complete
 # Find the average succes rate
 def accuracy(predictions, y):
     return np.sum(predictions == y) / y.size
@@ -245,13 +275,13 @@ def pass_data(X, W1, b1, W2, b2):
     return predictions
 
 # Main function, combine all algorithms
-def neural_network(x, y, epochs, l_rate, N, activation):
+def neural_network(x, y, epochs, l_rate, N, lambda_v, activation):
     W1, b1, W2, b2 = initialize(N) # Initialize weights and biases
     start_time = time.time() # Calculate time for all epochs to end
     
     for i in range(epochs): #in each epoch
         v1, o1, v2, o2 = forward_propagation(W1, b1, W2, b2, x, activation) # Pass the data through weights to find v's and o's
-        dW1, db1, dW2, db2, E, Eave = back_propagation(v1, o1, v2, o2, W2, x, y, activation) # find gradients of weights for 2 layers
+        dW1, db1, dW2, db2, E, Eave = back_propagation(v1, o1, v2, o2, W1, W2, x, y, lambda_v, activation) # find gradients of weights for 2 layers
         W1, b1, W2, b2 = update_weights(W1, b1, W2, b2, dW1, db1, dW2, db2, l_rate) # update weights
         
         if i % 10 == 0: # Show accuarcy for per 10 epochs
@@ -275,10 +305,10 @@ def neural_network(x, y, epochs, l_rate, N, activation):
     return W1, b1, W2, b2
 
 # Function: Neural Network
-# Inputs: (x, y, number of epochs, learning rate, hidden layer neuron number N, activation function ("relu" or "tanh"))
+# Inputs: (x, y, number of epochs, learning rate, hidden layer neuron number N, lambda_v, activation function ("relu" or "tanh"))
 # (CASE 1): Use activation = 'tanh' to use tanh for all layers. 
 # (CASE 2): Use activation = 'relu' to use relu for hidden layer and sigmoid for output layer. 
-W1, b1, W2, b2 = neural_network(train, train_l, 100, 0.09, 300, "relu")
+W1, b1, W2, b2 = neural_network(train, train_l, 100, 0.09, 300, 0, "relu")
 
 
 
