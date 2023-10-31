@@ -177,7 +177,7 @@ def forward_propagation(W1, b1, W2, b2, X, activation):
     
         v2 = W2.dot(o1)+b2
 
-        o2 = sigmoid(v2)
+        o2 = tanh(v2)
     
     else:
         raise ValueError("Use activation = 'relu' to use relu for hidden layer and sigmoid for output layer. \n Use activation = 'tanh' to use tanh for all layers.")
@@ -187,24 +187,6 @@ def forward_propagation(W1, b1, W2, b2, X, activation):
 # Main function to find the gradients using backpropagation
 def back_propagation(v1, o1, v2, o2, W1, W2, x, y, lambda_v, activation):
     m = y.size
-    
-    """
-    if activation == "relu":
-        E = np.sum((o2 - one_zero(y)) ** 2)
-        Eave = np.sum(E) / m
-
-        # error for output layer
-        e2 = o2 - one_zero(y)
-        # Gradient for Output Layer
-        dW2 = (1/m) * e2.dot(o1.T)
-        db2 = (1/m) * np.sum(e2, axis=1).reshape(-1,1)
-        
-        # error for hidden layer
-        e1 = W2.T.dot(e2) * d_RELU(v1)
-        # Gradient for Hidden Layer
-        dW1 = (1/m) * e1.dot(x.T)
-        db1 = (1/m) * np.sum(e1, axis=1).reshape(-1,1)
-    """  
      
     if activation == "relu":
         E = np.sum((o2 - one_zero(y)) ** 2) + (lambda_v / 2) * (np.sum(W1 ** 2) + np.sum(W2 ** 2))
@@ -237,13 +219,13 @@ def back_propagation(v1, o1, v2, o2, W1, W2, x, y, lambda_v, activation):
         # error for output layer
         e2 = o2 - one_min_one(y)
         # Gradient for Output Layer
-        dW2 = (1/m) * e2.dot(o1.T)
+        dW2 = (1/m) * e2.dot(o1.T) + reg_term_W2
         db2 = (1/m) * np.sum(e2, axis=1).reshape(-1,1)
         
         # error for hidden layer
         e1 = W2.T.dot(e2) * d_tanh(v1)
         # Gradient for Hidden Layer
-        dW1 = (1/m) * e1.dot(x.T)
+        dW1 = (1/m) * e1.dot(x.T) + reg_term_W1
         db1 = (1/m) * np.sum(e1, axis=1).reshape(-1,1)
         
         
@@ -269,8 +251,8 @@ def accuracy(predictions, y):
     return np.sum(predictions == y) / y.size
 
 # For passing test data with found W1, W2, b1 and b2
-def pass_data(X, W1, b1, W2, b2):
-    v1, o1, v2, o2 = forward_propagation(W1, b1, W2, b2, X, "relu")
+def pass_data(X, W1, b1, W2, b2, activation):
+    v1, o1, v2, o2 = forward_propagation(W1, b1, W2, b2, X, activation)
     predictions = np.argmax(o2, 0)
     return predictions
 
@@ -284,7 +266,7 @@ def neural_network(x, y, epochs, l_rate, N, lambda_v, activation):
         dW1, db1, dW2, db2, E, Eave = back_propagation(v1, o1, v2, o2, W1, W2, x, y, lambda_v, activation) # find gradients of weights for 2 layers
         W1, b1, W2, b2 = update_weights(W1, b1, W2, b2, dW1, db1, dW2, db2, l_rate) # update weights
         
-        if i % 10 == 0: # Show accuarcy for per 10 epochs
+        if i % 25 == 0: # Show accuarcy for per 10 epochs
             print("---------")
             print("Epoch: ", i)
             print("Training Set Success Rate:", accuracy(np.argmax(o2, 0), y))
@@ -297,10 +279,10 @@ def neural_network(x, y, epochs, l_rate, N, lambda_v, activation):
     print("---------")
     print("Number of Epochs:", epochs)
     print("Time:", end_time - start_time, "seconds\n")
-    print("        Mean Square Error:", Eave)
+    print("Mean Square Error:", Eave)
     print("Training Set Success Rate:", accuracy(np.argmax(o2, 0), y))
-    print("    Test Set Success Rate:", accuracy(pass_data(test, W1, b1, W2, b2), test_l))
-    print("           Test Set Error:", 1- accuracy(pass_data(test, W1, b1, W2, b2), test_l))
+    print("Test Set Success Rate:", accuracy(pass_data(test, W1, b1, W2, b2, activation), test_l))
+    print("Test Set Error:", 1- accuracy(pass_data(test, W1, b1, W2, b2, activation), test_l))
     
     return W1, b1, W2, b2
 
@@ -308,16 +290,17 @@ def neural_network(x, y, epochs, l_rate, N, lambda_v, activation):
 # Inputs: (x, y, number of epochs, learning rate, hidden layer neuron number N, lambda_v, activation function ("relu" or "tanh"))
 # (CASE 1): Use activation = 'tanh' to use tanh for all layers. 
 # (CASE 2): Use activation = 'relu' to use relu for hidden layer and sigmoid for output layer. 
-W1, b1, W2, b2 = neural_network(train, train_l, 100, 0.09, 300, 0, "relu")
+W1, b1, W2, b2 = neural_network(train, train_l, 100, 0.09, 300, 0, "tanh")
 
 
 
 
 
 
-def test_prediction(index, W1, b1, W2, b2):
+"""
+def test_prediction(index, W1, b1, W2, b2, activation):
     current_image = train[:, index, None]
-    prediction = pass_data(train[:, index, None], W1, b1, W2, b2)
+    prediction = pass_data(train[:, index, None], W1, b1, W2, b2, activation)
     label = train_l[:, index, None]
     print("Prediction: ", prediction)
     print("Label: ", label)
@@ -327,11 +310,210 @@ def test_prediction(index, W1, b1, W2, b2):
     plt.imshow(current_image, interpolation='nearest')
     plt.show()
 
-test_prediction(0, W1, b1, W2, b2)
-test_prediction(1, W1, b1, W2, b2)
-test_prediction(2, W1, b1, W2, b2)
-test_prediction(3, W1, b1, W2, b2)
+test_prediction(0, W1, b1, W2, b2, "relu")
+test_prediction(1, W1, b1, W2, b2, "relu")
+test_prediction(2, W1, b1, W2, b2, "relu")
+test_prediction(3, W1, b1, W2, b2, "relu")
 
+"""
+
+"""
+# Neural network will contain 2 layers, one with 784 features (pixels) and one with 10 features (classes)
+# and a hidden layers with N = 300, 500, 1000
+# learning coefficient = 0.01, 0.05, 0.09
+# activation function as tanh and RELU
+
+Notes:  -At beginning epochs, as weights are random, success rate is around 0.1 which is random guessing.
+        -As the learning rate is so low, our weights didn't converged to true weights in time.
+        -RELU function is around x3 faster however tanh activation function results in higher success rate.
+        -Using larger hidden layer slows down training time but grants better success rate in the end.
+        Using ReLu with high learning rate suceeded the best balance between training time and success rate.
+
+# 1 - N = 300:
+    1.1. l_rate = 0.01:
+        1.1.1. tanh:
+            
+            Number of Epochs: 100
+            Time: 190.25479006767273 seconds
+
+            Mean Square Error: 3.590489151416886
+            Training Set Success Rate: 0.38461666666666666
+            Test Set Success Rate: 0.4352
+            Test Set Error: 0.5648
+            
+        1.1.2. relu:
+        
+            Number of Epochs: 100
+            Time: 67.26897048950195 seconds
+
+            Mean Square Error: 0.9277162446213076
+            Training Set Success Rate: 0.12015
+            Test Set Success Rate: 0.1226
+            Test Set Error: 0.8774
+            
+    
+    1.2. l_rate = 0.03:
+        1.2.1. tanh:
+            Number of Epochs: 100
+            Time: 175.89676141738892 seconds
+
+            Mean Square Error: 2.5207181522633246
+            Training Set Success Rate: 0.71725
+            Test Set Success Rate: 0.6606
+            Test Set Error: 0.33940000000000003
+            
+        1.2.2. relu:
+            Number of Epochs: 100
+            Time: 63.6363525390625 seconds
+
+            Mean Square Error: 0.9036041746809448
+            Training Set Success Rate: 0.25711666666666666
+            Test Set Success Rate: 0.2655
+            Test Set Error: 0.7344999999999999
+            
+           
+    1.3. l_rate = 0.09:
+        1.3.1. tanh:
+            
+            Number of Epochs: 100
+            Time: 189.34866499900818 seconds
+
+            Mean Square Error: 1.193835694288484
+            Training Set Success Rate: 0.86065
+            Test Set Success Rate: 0.8582
+            Test Set Error: 0.14180000000000004
+            
+        1.3.2. relu:
+            Number of Epochs: 100
+            Time: 64.31954503059387 seconds
+
+            Mean Square Error: 0.5432723696851491
+            Training Set Success Rate: 0.7431
+            Test Set Success Rate: 0.7519
+            Test Set Error: 0.2481
+                        
+
+  2 - N = 500:
+    2.1. l_rate = 0.01:
+        2.1.1. tanh:
+            
+            Number of Epochs: 100
+            Time: 316.01254177093506 seconds
+
+            Mean Square Error: 3.5382426501077355
+            Training Set Success Rate: 0.6108666666666667
+            Test Set Success Rate: 0.6175
+            Test Set Error: 0.38249999999999995
+            
+        2.1.2. relu:
+            Number of Epochs: 100
+            Time: 103.2268660068512 seconds
+
+            Mean Square Error: 0.9256072513599892
+            Training Set Success Rate: 0.18455
+            Test Set Success Rate: 0.184
+            Test Set Error: 0.8160000000000001
+    
+    2.2. l_rate = 0.03:
+        2.2.1. tanh:
+            Number of Epochs: 100
+            Time: 303.54504585266113 seconds
+
+            Mean Square Error: 2.305068160955473
+            Training Set Success Rate: 0.7529333333333333
+            Test Set Success Rate: 0.7629
+            Test Set Error: 0.23709999999999998
+            
+        2.2.2. relu:
+            Number of Epochs: 100
+            Time: 104.78797602653503 seconds
+
+            Mean Square Error: 0.8930698598559726
+            Training Set Success Rate: 0.4789833333333333
+            Test Set Success Rate: 0.4951
+            Test Set Error: 0.5049
+            
+           
+    2.3. l_rate = 0.09:
+        2.3.1. tanh:
+            Number of Epochs: 100
+            Time: 294.28605222702026 seconds
+
+            Mean Square Error: 1.138310291933822
+            Training Set Success Rate: 0.86865
+            Test Set Success Rate: 0.8774
+            Test Set Error: 0.12260000000000004
+            
+        2.3.2. relu:
+            Number of Epochs: 100
+            Time: 99.51801633834839 seconds
+
+            Mean Square Error: 0.4975329447238578
+            Training Set Success Rate: 0.7751833333333333
+            Test Set Success Rate: 0.7859
+            Test Set Error: 0.21409999999999996
+            
+  3 - N = 1000:
+    3.1. l_rate = 0.01:
+        3.1.1. tanh:
+            Number of Epochs: 100
+            Time: 553.5273218154907 seconds
+
+            Mean Square Error: 3.3780574602148916
+            Training Set Success Rate: 0.71315
+            Test Set Success Rate: 0.7165
+            Test Set Error: 0.2835
+            
+        3.1.2. relu:
+            Number of Epochs: 100
+            Time: 171.98229837417603 seconds
+
+            Mean Square Error: 0.9222179338942486
+            Training Set Success Rate: 0.19208333333333333
+            Test Set Success Rate: 0.1924
+            Test Set Error: 0.8076
+    
+    3.2. l_rate = 0.03:
+        3.2.1. tanh:
+            Number of Epochs: 100
+            Time: 543.1981992721558 seconds
+
+            Mean Square Error: 2.018986430644982
+            Training Set Success Rate: 0.7882
+            Test Set Success Rate: 0.796
+            Test Set Error: 0.20399999999999996
+            
+        3.2.2. relu:
+            Number of Epochs: 100
+            Time: 171.20726227760315 seconds
+
+            Mean Square Error: 0.8647632131167379
+            Training Set Success Rate: 0.67555
+            Test Set Success Rate: 0.6829
+            Test Set Error: 0.31710000000000005
+            
+           
+    3.3. l_rate = 0.09:
+        3.3.1. tanh:
+            Number of Epochs: 100
+            Time: 548.7319149971008 seconds
+            
+            Mean Square Error: 1.0829777295931151
+            Training Set Success Rate: 0.87435
+            Test Set Success Rate: 0.8821
+            Test Set Error: 0.1179
+            
+        3.3.2. relu:
+            Number of Epochs: 100
+            Time: 170.9559588432312 seconds
+
+            Mean Square Error: 0.45442036881538966
+            Training Set Success Rate: 0.79805
+            Test Set Success Rate: 0.8071
+            Test Set Error: 0.19289999999999996
+
+"""
+# BEST ONE: tanh with N = 1000, l_rate = 0.09 with 0.8821 test success
 
 
 
