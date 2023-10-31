@@ -266,7 +266,7 @@ def neural_network(x, y, epochs, l_rate, N, lambda_v, activation):
         dW1, db1, dW2, db2, E, Eave = back_propagation(v1, o1, v2, o2, W1, W2, x, y, lambda_v, activation) # find gradients of weights for 2 layers
         W1, b1, W2, b2 = update_weights(W1, b1, W2, b2, dW1, db1, dW2, db2, l_rate) # update weights
         
-        if i % 25 == 0: # Show accuarcy for per 10 epochs
+        if i % 10 == 0: # Show accuarcy for per 10 epochs
             print("---------")
             print("Epoch: ", i)
             print("Training Set Success Rate:", accuracy(np.argmax(o2, 0), y))
@@ -290,7 +290,9 @@ def neural_network(x, y, epochs, l_rate, N, lambda_v, activation):
 # Inputs: (x, y, number of epochs, learning rate, hidden layer neuron number N, lambda_v, activation function ("relu" or "tanh"))
 # (CASE 1): Use activation = 'tanh' to use tanh for all layers. 
 # (CASE 2): Use activation = 'relu' to use relu for hidden layer and sigmoid for output layer. 
-W1, b1, W2, b2 = neural_network(train, train_l, 100, 0.09, 300, 0, "tanh")
+W1, b1, W2, b2 = neural_network(train, train_l, 200, 0.09, 100, 0, "tanh")
+
+
 
 
 
@@ -516,5 +518,59 @@ Notes:  -At beginning epochs, as weights are random, success rate is around 0.1 
 # BEST ONE: tanh with N = 1000, l_rate = 0.09 with 0.8821 test success
 
 
+"""
+Now N= 10, 50, 100
 
+N=10:
+    
+    Number of Epochs: 100
+    Time: 12.301090240478516 seconds
+
+    Mean Square Error: 2.684031240669328
+    Training Set Success Rate: 0.5734333333333334
+    Test Set Success Rate: 0.577
+    Test Set Error: 0.42300000000000004
+
+N=50:
+    
+    Number of Epochs: 100
+    Time: 36.696799755096436 seconds
+
+    Mean Square Error: 1.5410302849045827
+    Training Set Success Rate: 0.8162
+    Test Set Success Rate: 0.8263
+    Test Set Error: 0.17369999999999997
+
+N=100:
+    
+    Number of Epochs: 100
+    Time: 62.340402603149414 seconds
+
+    Mean Square Error: 1.3415265775541685
+    Training Set Success Rate: 0.8403166666666667
+    Test Set Success Rate: 0.8503
+    Test Set Error: 0.14970000000000006
+
+
+lambda=0.01 and lambda=0.001
+
+lambda=0.01:
+    Number of Epochs: 100
+    Time: 61.98282790184021 seconds
+
+    Mean Square Error: 1.395543985838822
+    Training Set Success Rate: 0.8339166666666666
+    Test Set Success Rate: 0.8427
+    Test Set Error: 0.1573
+
+lambda=0.001:
+    Number of Epochs: 100
+    Time: 60.69019412994385 seconds
+
+    Mean Square Error: 1.3617456877778122
+    Training Set Success Rate: 0.8364666666666667
+    Test Set Success Rate: 0.8462
+    Test Set Error: 0.15380000000000005
+
+"""
 
