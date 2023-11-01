@@ -290,7 +290,7 @@ def neural_network(x, y, epochs, l_rate, N, lambda_v, activation):
 # Inputs: (x, y, number of epochs, learning rate, hidden layer neuron number N, lambda_v, activation function ("relu" or "tanh"))
 # (CASE 1): Use activation = 'tanh' to use tanh for all layers. 
 # (CASE 2): Use activation = 'relu' to use relu for hidden layer and sigmoid for output layer. 
-W1, b1, W2, b2 = neural_network(train, train_l, 200, 0.09, 100, 0, "tanh")
+W1, b1, W2, b2 = neural_network(train, train_l, 400, 0.09, 100, 0, "tanh")
 
 
 
@@ -299,7 +299,6 @@ W1, b1, W2, b2 = neural_network(train, train_l, 200, 0.09, 100, 0, "tanh")
 
 
 
-"""
 def test_prediction(index, W1, b1, W2, b2, activation):
     current_image = train[:, index, None]
     prediction = pass_data(train[:, index, None], W1, b1, W2, b2, activation)
@@ -310,14 +309,15 @@ def test_prediction(index, W1, b1, W2, b2, activation):
     current_image = current_image.reshape((28, 28)) * 255
     plt.gray()
     plt.imshow(current_image, interpolation='nearest')
+    plt.title('Prediction: {}, Label: {}'.format(prediction, label[0]))
     plt.show()
 
-test_prediction(0, W1, b1, W2, b2, "relu")
-test_prediction(1, W1, b1, W2, b2, "relu")
-test_prediction(2, W1, b1, W2, b2, "relu")
-test_prediction(3, W1, b1, W2, b2, "relu")
+test_prediction(0, W1, b1, W2, b2, "tanh")
+test_prediction(1, W1, b1, W2, b2, "tanh")
+test_prediction(2, W1, b1, W2, b2, "tanh")
+test_prediction(3, W1, b1, W2, b2, "tanh")
+test_prediction(1042, W1, b1, W2, b2, "tanh")
 
-"""
 
 """
 # Neural network will contain 2 layers, one with 784 features (pixels) and one with 10 features (classes)
@@ -571,6 +571,26 @@ lambda=0.001:
     Training Set Success Rate: 0.8364666666666667
     Test Set Success Rate: 0.8462
     Test Set Error: 0.15380000000000005
+    
+lambda=0:
+    Number of Epochs: 100
+    Time: 62.340402603149414 seconds
+
+    Mean Square Error: 1.3415265775541685
+    Training Set Success Rate: 0.8403166666666667
+    Test Set Success Rate: 0.8503
+    Test Set Error: 0.14970000000000006
 
 """
 
+# BEST, 400 epochs
+
+"""
+Number of Epochs: 400
+Time: 255.46789479255676 seconds
+
+Mean Square Error: 0.6437990591401012
+Training Set Success Rate: 0.9109833333333334
+Test Set Success Rate: 0.9166
+Test Set Error: 0.08340000000000003
+"""
