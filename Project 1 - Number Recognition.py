@@ -320,16 +320,18 @@ test_prediction(1042, W1, b1, W2, b2, "tanh")
 
 
 """
-# Neural network will contain 2 layers, one with 784 features (pixels) and one with 10 features (classes)
-# and a hidden layers with N = 300, 500, 1000
+# Neural network will contain 2 layers, one with 784 features (pixels) as the input and one with 10 features (classes) as the output
+# and a hidden layers with N = 300, 500, 1000 in between.
 # learning coefficient = 0.01, 0.05, 0.09
 # activation function as tanh and RELU
 
-Notes:  -At beginning epochs, as weights are random, success rate is around 0.1 which is random guessing.
-        -As the learning rate is so low, our weights didn't converged to true weights in time.
-        -RELU function is around x3 faster however tanh activation function results in higher success rate.
-        -Using larger hidden layer slows down training time but grants better success rate in the end.
-        Using ReLu with high learning rate suceeded the best balance between training time and success rate.
+Notes:  -At beginning epochs, as weights are random, the success rate is around 0.1 which is random guessing.
+        -As the learning rate is so low, our weights didn't converge to true weights in time.
+        -RELU function is around x3 faster however tanh activation function results in a higher success rate.
+        -Using a larger hidden layer slows down training time but grants a better success rate in the end.
+        Using ReLu with a high learning rate succeeded in the best balance between training time and success rate.
+        -Because of the early stopping of the training (at 100 epochs), it seems like our model is not overfitted. 
+        That is why introducing regularization has no big effect.
 
 # 1 - N = 300:
     1.1. l_rate = 0.01:
