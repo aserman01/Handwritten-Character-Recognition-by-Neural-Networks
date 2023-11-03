@@ -145,7 +145,7 @@ def d_sigmoid(v):
 def one_min_one(y):
     one_min_one_y = np.zeros((y.size, y.max() + 1)) - 1
     one_min_one_y[np.arange(y.size), y] = 1 # each row of the minus one vector which corresponds to classified number will become 1
-    # for example: if classification = 5, 5th elementh of zeroes vector will become 1, others will stay as -1
+    # for example: if classification = 5, 5th elementh of minus ones vector will become 1, others will stay as -1
     one_min_one_y = one_min_one_y.T
     return one_min_one_y
     
