@@ -295,7 +295,7 @@ W1, b1, W2, b2 = neural_network(train, train_l, 100, 0.09, 100, 0, "tanh")
 
 def create_mini_batches(X, y, batch_size):
     mini_batches = []
-    data = np.column_stack((X, y))  # Assuming X and y are both 2D arrays
+    data = np.column_stack((X, y))
     np.random.shuffle(data)
     n_minibatches = data.shape[0] // batch_size
 
@@ -313,7 +313,7 @@ def create_mini_batches(X, y, batch_size):
 
     return X_mini, Y_mini
 
-# Uncomment for mini batches, create_mini_batches(x, y, batch_size)
+# Uncomment for mini batches
 #train_mini, train_l_mini = create_mini_batches(train.T, train_l.T, 50)
 #W1, b1, W2, b2 = neural_network(train_mini.T, train_l_mini.T, 200, 0.09, 1000, 0.01, "tanh")
 
@@ -541,68 +541,62 @@ Notes:  -At beginning epochs, as weights are random, the success rate is around 
 
 
 """
-Now N= 10, 50, 100
+Now mini batch sizes N= 10, 50, 100
 
-N=10:
-    
-    Number of Epochs: 100
-    Time: 12.301090240478516 seconds
+batch size 10
+Number of Epochs: 10
+Time: 0.18358492851257324 seconds
 
-    Mean Square Error: 2.684031240669328
-    Training Set Success Rate: 0.5734333333333334
-    Test Set Success Rate: 0.577
-    Test Set Error: 0.42300000000000004
+Mean Square Error: 3.179330429206016
+Training Set Success Rate: 0.42
+Test Set Success Rate: 0.2209
+Test Set Error: 0.7791
 
-N=50:
-    
-    Number of Epochs: 100
-    Time: 36.696799755096436 seconds
+batch size 50
+Number of Epochs: 50
+Time: 0.9772930145263672 seconds
 
-    Mean Square Error: 1.5410302849045827
-    Training Set Success Rate: 0.8162
-    Test Set Success Rate: 0.8263
-    Test Set Error: 0.17369999999999997
+Mean Square Error: 0.35849675313070667
+Training Set Success Rate: 1.0
+Test Set Success Rate: 0.5771
+Test Set Error: 0.42290000000000005
 
-N=100:
-    
-    Number of Epochs: 100
-    Time: 62.340402603149414 seconds
+batch size 100
+Number of Epochs: 100
+Time: 1.9867722988128662 seconds
 
-    Mean Square Error: 1.3415265775541685
-    Training Set Success Rate: 0.8403166666666667
-    Test Set Success Rate: 0.8503
-    Test Set Error: 0.14970000000000006
-
+Mean Square Error: 0.025486505240173915
+Training Set Success Rate: 1.0
+Test Set Success Rate: 0.5847
+Test Set Error: 0.4153
 
 lambda=0.01 and lambda=0.001
 
 lambda=0.01:
     Number of Epochs: 100
-    Time: 61.98282790184021 seconds
+    Time: 2.047297239303589 seconds
 
-    Mean Square Error: 1.395543985838822
-    Training Set Success Rate: 0.8339166666666666
-    Test Set Success Rate: 0.8427
-    Test Set Error: 0.1573
+   Mean Square Error: 0.04322124989064438
+   Training Set Success Rate: 1.0
+   Test Set Success Rate: 0.6396
+   Test Set Error: 0.36040000000000005
 
 lambda=0.001:
-    Number of Epochs: 100
-    Time: 60.69019412994385 seconds
+   Number of Epochs: 100
+   Time: 1.953660249710083 seconds
 
-    Mean Square Error: 1.3617456877778122
-    Training Set Success Rate: 0.8364666666666667
-    Test Set Success Rate: 0.8462
-    Test Set Error: 0.15380000000000005
-    
+   Mean Square Error: 0.017635734682326487
+   Training Set Success Rate: 1.0
+   Test Set Success Rate: 0.6604
+   Test Set Error: 0.3396    
 lambda=0:
     Number of Epochs: 100
-    Time: 62.340402603149414 seconds
+    Time: 1.9867722988128662 seconds
 
-    Mean Square Error: 1.3415265775541685
-    Training Set Success Rate: 0.8403166666666667
-    Test Set Success Rate: 0.8503
-    Test Set Error: 0.14970000000000006
-
+    Mean Square Error: 0.025486505240173915
+    Training Set Success Rate: 1.0
+    Test Set Success Rate: 0.5847
+    Test Set Error: 0.4153
 """
 
 # BEST, 400 epochs
